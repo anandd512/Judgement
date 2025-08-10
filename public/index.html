@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Judgement - Card Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Mobile orientation suggestion -->
+    <div id="orientation-message" class="orientation-message">
+        <div class="orientation-content">
+            <div class="phone-icon">📱</div>
+            <h3>Better Experience</h3>
+            <p>For the best gaming experience, please rotate your device to landscape mode.</p>
+            <button onclick="this.parentElement.parentElement.style.display='none'">Continue</button>
+        </div>
+    </div>
+
+    <div id="app">
+        <!-- Connection Status -->
+        <div id="connection-status" class="connection-status">
+            <span id="connection-indicator">●</span>
+            <span id="connection-text">Connecting...</span>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="container">
+                <h1>Judgement Card Game</h1>
+                <div class="game-options">
+                    <div class="option-card">
+                        <h2>Host Game</h2>
+                        <input type="text" id="host-name" placeholder="Enter your name">
+                        <input type="number" id="max-rounds" placeholder="Max rounds (1-11)" min="1" max="11" value="7">
+                        <button id="host-btn">Host Game</button>
+                    </div>
+                    <div class="option-card">
+                        <h2>Join Game</h2>
+                        <input type="text" id="join-name" placeholder="Enter your name">
+                        <input type="text" id="game-code" placeholder="Enter game code">
+                        <button id="join-btn">Join Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Waiting Screen -->
+        <div id="waiting-screen" class="screen">
+            <div class="container">
+                <h1>Game Lobby</h1>
+                <div class="game-info">
+                    <p>Game Code: <span id="display-game-code"></span></p>
+                    <p>Share this code with other players</p>
+                </div>
+                <div class="players-list">
+                    <h2>Players</h2>
+                    <div id="players-container">
+                        <!-- Players will be dynamically added here -->
+                    </div>
+                </div>
+                <div class="teams">
+                    <div class="team">
+                        <h3>Team 1</h3>
+                        <div class="team-players">
+                            <div class="player-slot" id="team1-player1">Player 1</div>
+                            <div class="player-slot" id="team1-player2">Player 3</div>
+                        </div>
+                    </div>
+                    <div class="team">
+                        <h3>Team 2</h3>
+                        <div class="team-players">
+                            <div class="player-slot" id="team2-player1">Player 2</div>
+                            <div class="player-slot" id="team2-player2">Player 4</div>
+                        </div>
+                    </div>
+                </div>
+                <p id="waiting-message">Waiting for all players to join...</p>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-container">
+                <!-- Game Header -->
+                <div class="game-header">
+                    <div class="round-info">
+                        <span>Round: <span id="current-round">1</span> / <span id="max-rounds-display">7</span></span>
+                        <span id="trump-display">Trump: <span id="trump-suit">-</span></span>
+                    </div>
+                    <div class="game-phase">
+                        <span id="phase-indicator">Waiting...</span>
+                    </div>
+                    <div class="game-controls">
+                        <button id="pause-btn" class="icon-btn host-only" title="Pause/Resume Game" style="display: none;">⏸️</button>
+                        <button id="stop-btn" class="icon-btn host-only" title="Stop Game" style="display: none;">⏹️</button>
+                        <button id="chat-toggle-btn" class="icon-btn">💬</button>
+                        <button id="sort-cards-btn" class="icon-btn">🔄</button>
+                    </div>
+                </div>
+
+                <!-- Chat Panel -->
+                <div id="chat-panel" class="chat-panel">
+                    <div class="chat-header">
+                        <span>Game Chat</span>
+                        <button id="chat-close-btn" class="close-btn">×</button>
+                    </div>
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Messages will appear here -->
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="Type a message..." maxlength="100">
+                        <button id="chat-send-btn">Send</button>
+                    </div>
+                </div>
+
+                <!-- Bidding Section -->
+                <div id="bidding-section" class="game-section">
+                    <h2>Bidding Phase</h2>
+                    <div class="bidding-container">
+                        <div class="bid-info">
+                            <p id="bid-instruction">Waiting for bids...</p>
+                            <div id="current-bids">
+                                <div class="bid-item" id="bid-player-0">Player 1: -</div>
+                                <div class="bid-item" id="bid-player-1">Player 2: -</div>
+                                <div class="bid-item" id="bid-player-2">Player 3: -</div>
+                                <div class="bid-item" id="bid-player-3">Player 4: -</div>
+                            </div>
+                        </div>
+                        <div id="bid-controls" class="bid-controls">
+                            <p id="bid-timer-text">Time remaining: <span id="bid-timer">30</span>s</p>
+                            <button id="place-bid-btn">Place Your Bid</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trump Selection Section -->
+                <div id="trump-section" class="game-section">
+                    <h2>Trump Selection</h2>
+                    <div class="trump-container">
+                        <p id="trump-instruction">Waiting for trump selection...</p>
+                        <div id="trump-controls" class="trump-controls">
+                            <button class="trump-btn" data-suit="clubs">♣ Clubs</button>
+                            <button class="trump-btn" data-suit="diamonds">♦ Diamonds</button>
+                            <button class="trump-btn" data-suit="hearts">♥ Hearts</button>
+                            <button class="trump-btn" data-suit="spades">♠ Spades</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Board -->
+                <div id="game-board" class="game-section">
+                    <!-- Other Players -->
+                    <div class="other-players">
+                        <div class="player-area" id="player-1-area">
+                            <div class="player-info">
+                                <span class="player-name" id="player-1-name">Player 2</span>
+                                <span class="card-count" id="player-1-cards">13 cards</span>
+                            </div>
+                            <div class="player-indicator" id="player-1-indicator"></div>
+                        </div>
+                        <div class="player-area" id="player-2-area">
+                            <div class="player-info">
+                                <span class="player-name" id="player-2-name">Player 3</span>
+                                <span class="card-count" id="player-2-cards">13 cards</span>
+                            </div>
+                            <div class="player-indicator" id="player-2-indicator"></div>
+                        </div>
+                        <div class="player-area" id="player-3-area">
+                            <div class="player-info">
+                                <span class="player-name" id="player-3-name">Player 4</span>
+                                <span class="card-count" id="player-3-cards">13 cards</span>
+                            </div>
+                            <div class="player-indicator" id="player-3-indicator"></div>
+                        </div>
+                    </div>
+
+                    <!-- Trick Area -->
+                    <div class="trick-area">
+                        <h3>Current Trick</h3>
+                        <div id="current-turn-indicator" class="turn-indicator">
+                            <!-- Turn indicator will be updated here -->
+                        </div>
+                        <div class="trick-cards" id="trick-cards">
+                            <!-- Played cards will appear here -->
+                        </div>
+                        <div class="trick-winner" id="trick-winner"></div>
+                        
+                        <!-- Game Timer -->
+                        <div id="game-timer-container" class="game-timer-container" style="display: none;">
+                            <p id="game-timer-text">Time remaining: <span id="game-timer">30</span>s</p>
+                        </div>
+                    </div>
+
+                    <!-- Player Hand -->
+                    <div class="player-hand">
+                        <h3>Your Hand</h3>
+                        <div id="hand-cards" class="hand-cards">
+                            <!-- Player's cards will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Section -->
+                <div id="score-section" class="game-section">
+                    <h2>Scores</h2>
+                    <div class="score-container">
+                        <div class="current-round-score">
+                            <h3>Current Round</h3>
+                            <div class="score-row">
+                                <span>Team 1 Bid: <span id="team1-bid">-</span></span>
+                                <span>Team 1 Tricks: <span id="team1-tricks">0</span></span>
+                            </div>
+                            <div class="score-row">
+                                <span>Team 2 Bid: <span id="team2-bid">-</span></span>
+                                <span>Team 2 Tricks: <span id="team2-tricks">0</span></span>
+                            </div>
+                        </div>
+                        <div class="overall-score">
+                            <h3>Overall Score</h3>
+                            <div class="score-row">
+                                <span>Team 1: <span id="team1-overall">0</span> rounds won</span>
+                            </div>
+                            <div class="score-row">
+                                <span>Team 2: <span id="team2-overall">0</span> rounds won</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Round End Section -->
+                <div id="round-end-section" class="game-section">
+                    <h2>Round Complete</h2>
+                    <div class="round-end-container">
+                        <div id="round-result">
+                            <!-- Round result will be displayed here -->
+                        </div>
+                        <button id="next-round-btn">Start Next Round</button>
+                    </div>
+                </div>
+
+                <!-- Game End Section -->
+                <div id="game-end-section" class="game-section">
+                    <h2>Game Complete</h2>
+                    <div class="game-end-container">
+                        <div id="final-result">
+                            <!-- Final game result will be displayed here -->
+                        </div>
+                        <button id="new-game-btn">New Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bid Modal -->
+    <div id="bid-modal" class="modal">
+        <div class="modal-content bid-modal-content">
+            <h2>Place Your Bid</h2>
+            <div class="bid-timer-container">
+                <div class="timer-circle">
+                    <span id="bid-modal-timer">30</span>
+                </div>
+                <p>seconds remaining</p>
+            </div>
+            <div class="bid-buttons-grid">
+                <button class="bid-btn" data-bid="6">6</button>
+                <button class="bid-btn" data-bid="7">7</button>
+                <button class="bid-btn" data-bid="8">8</button>
+                <button class="bid-btn" data-bid="9">9</button>
+                <button class="bid-btn" data-bid="10">10</button>
+                <button class="bid-btn" data-bid="11">11</button>
+                <button class="bid-btn" data-bid="12">12</button>
+                <button class="bid-btn" data-bid="13">13</button>
+            </div>
+            <p class="bid-help-text">Select how many tricks your team will win</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="error-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Error</h2>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
