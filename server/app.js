@@ -4,12 +4,8 @@ const socketIo = require('socket.io');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-console.log('Starting Judgement Card Game Server...');
-
 const app = express();
 const server = http.createServer(app);
-
-console.log('Creating Socket.IO instance...');
 const io = socketIo(server, {
     cors: {
         origin: "*",
@@ -358,25 +354,21 @@ class Game {
         
         // If this is the first card of the trick, all cards are valid
         if (this.currentTrick.length === 0) {
-            console.log(`Player ${playerIndex} can play any card (first of trick)`);
             return player.hand;
         }
         
         // Get the lead suit
         const leadSuit = this.currentTrick[0].card.suit;
-        console.log(`Lead suit is ${leadSuit}`);
         
         // Check if player has cards of the lead suit
         const leadSuitCards = player.hand.filter(c => c.suit === leadSuit);
         
         // If player has lead suit cards, they must play one
         if (leadSuitCards.length > 0) {
-            console.log(`Player ${playerIndex} must play ${leadSuit}, has ${leadSuitCards.length} cards`);
             return leadSuitCards;
         }
         
         // If player doesn't have lead suit, they can play any card
-        console.log(`Player ${playerIndex} has no ${leadSuit}, can play any card`);
         return player.hand;
     }
 
@@ -822,7 +814,6 @@ function startPlayTimer(game, gameCode) {
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
 
     socket.on('host_game', (data) => {
         const gameCode = uuidv4().substr(0, 6).toUpperCase();
@@ -999,7 +990,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
         
         const playerData = players.get(socket.id);
         if (playerData) {
@@ -1018,7 +1008,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('error', (error) => {
-        console.log('Socket error:', error);
+        // Socket error handled silently
     });
 });
 

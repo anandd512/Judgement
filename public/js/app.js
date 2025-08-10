@@ -202,7 +202,6 @@ class JudgementGame {
 
         this.socket.on('valid_cards', (validCards) => {
             this.validCards = validCards;
-            console.log('Received valid cards:', validCards); // Debug log
             this.updateHandDisplay(); // Refresh hand display with new valid cards
         });
 
@@ -303,17 +302,14 @@ class JudgementGame {
     playCard(card) {
         // Prevent multiple rapid calls
         if (this.isPlayingCard) {
-            console.log('Already playing a card, please wait...');
             return;
         }
         
         // Validate it's the player's turn and game phase
         if (this.gameState?.currentPlayer !== this.playerIndex) {
-            console.log('Not your turn!');
             return;
         }
         if (this.gameState?.gamePhase !== 'playing') {
-            console.log('Game not in playing phase!');
             return;
         }
         
@@ -321,7 +317,6 @@ class JudgementGame {
         const currentTrick = this.gameState?.currentTrick || [];
         const playerAlreadyPlayed = currentTrick.some(trickCard => trickCard.playerId === this.playerIndex);
         if (playerAlreadyPlayed) {
-            console.log('You have already played a card in this trick!');
             return;
         }
         
@@ -927,7 +922,6 @@ class JudgementGame {
                     
                     // Additional protection against multiple plays
                     if (this.isPlayingCard) {
-                        console.log('Card play in progress, ignoring click');
                         return;
                     }
                     
@@ -935,7 +929,6 @@ class JudgementGame {
                     const currentTrick = this.gameState?.currentTrick || [];
                     const playerAlreadyPlayed = currentTrick.some(trickCard => trickCard.playerId === this.playerIndex);
                     if (playerAlreadyPlayed) {
-                        console.log('Player already played in this trick');
                         return;
                     }
                     
@@ -1095,7 +1088,6 @@ class JudgementGame {
     isCardPlayable(card) {
         // If no valid cards info, allow all cards (fallback)
         if (!this.validCards || this.validCards.length === 0) {
-            console.log('No valid cards info, allowing all cards');
             return true;
         }
         
@@ -1104,7 +1096,6 @@ class JudgementGame {
             validCard.suit === card.suit && validCard.rank === card.rank
         );
         
-        console.log(`Card ${card.rank} of ${card.suit} is ${isValid ? 'valid' : 'invalid'}`);
         return isValid;
     }
 
@@ -1337,8 +1328,6 @@ class JudgementGame {
         
         // Clear phase indicator
         document.getElementById('phase-indicator').textContent = 'Preparing next round...';
-        
-        console.log('Game board cleared for next round');
     }
 
     startRoundCountdown(seconds, nextRound) {
@@ -1373,7 +1362,7 @@ class JudgementGame {
         document.getElementById('game-code').value = '';
         document.getElementById('max-rounds').value = '7';
         
-        console.log('Returned to start screen');
+        // Returned to start screen
     }
 
     pauseGame() {
