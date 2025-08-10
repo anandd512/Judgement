@@ -237,6 +237,10 @@ class JudgementGame {
             this.showGameEndScreen(data);
         });
 
+        this.socket.on('player_disconnected', (data) => {
+            this.handlePlayerDisconnected(data);
+        });
+
         this.socket.on('gamePaused', (data) => {
             this.handleGamePaused(data);
         });
@@ -1394,6 +1398,17 @@ class JudgementGame {
             
             // Hide pause overlay
             this.hidePauseOverlay();
+        }
+    }
+
+    handlePlayerDisconnected(data) {
+        // Show notification about player leaving
+        const playerName = data.playerName || 'A player';
+        this.showToast(`${playerName} has left the game`, 3000);
+        
+        // Update UI if needed
+        if (data.playersRemaining < 4 && this.gameState && this.gameState.gamePhase !== 'waiting') {
+            this.showToast('Game paused due to player disconnect', 3000);
         }
     }
 

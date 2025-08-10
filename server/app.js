@@ -102,6 +102,12 @@ class Game {
             { tricksWon: 0, roundsParticipated: 0 }
         ]; // Track individual player statistics
         this.currentRoundStats = [0, 0, 0, 0]; // Tricks won by each player in current round
+        this.createdAt = Date.now();
+        this.lastActivity = Date.now();
+    }
+
+    updateActivity() {
+        this.lastActivity = Date.now();
     }
 
     addPlayer(playerId, playerName) {
@@ -591,6 +597,11 @@ class Game {
 
             // Show game end screen with statistics
             this.io.to(this.gameCode).emit('gameEnded', gameEndData);
+            
+            // Schedule cleanup after players have time to see results
+            setTimeout(() => {
+                cleanupGame(this.gameCode);
+            }, 30000); // 30 seconds to view results
 
         } else if (this.currentRound >= this.maxRounds) {
             this.gamePhase = 'game_end';
@@ -616,6 +627,11 @@ class Game {
 
             // Show game end screen with statistics
             this.io.to(this.gameCode).emit('gameEnded', gameEndData);
+            
+            // Schedule cleanup after players have time to see results
+            setTimeout(() => {
+                cleanupGame(this.gameCode);
+            }, 30000); // 30 seconds to view results
 
         } else {
             // Continue to next round
@@ -812,6 +828,80 @@ function startPlayTimer(game, gameCode) {
     }
 }
 
+// Cleanup functions
+function cleanupGame(gameCode) {
+    const game = games.get(gameCode);
+    if (game) {
+        // Clear any active timers
+        game.clearTimer();
+        
+        // Remove all players from the players map for this game
+        for (const [socketId, playerData] of players.entries()) {
+            if (playerData.gameCode === gameCode) {
+                players.delete(socketId);
+            }
+        }
+        
+        // Remove the game from games map
+        games.delete(gameCode);
+    }
+}
+
+function removePlayerFromGame(socketId) {
+    const playerData = players.get(socketId);
+    if (!playerData) return null;
+    
+    const game = games.get(playerData.gameCode);
+    if (!game) {
+        players.delete(socketId);
+        return null;
+    }
+    
+    // Find and remove player from game
+    const playerIndex = game.players.findIndex(p => p.id === socketId);
+    if (playerIndex !== -1) {
+        game.players.splice(playerIndex, 1);
+        
+        // If host left, assign new host
+        if (game.hostId === socketId && game.players.length > 0) {
+            game.hostId = game.players[0].id;
+        }
+        
+        // If game is in progress and player leaves, handle gracefully
+        if (game.gamePhase !== 'waiting' && game.players.length < 4) {
+            // Pause or end the game if too few players
+            game.clearTimer();
+            if (game.players.length === 0) {
+                cleanupGame(playerData.gameCode);
+                return null;
+            }
+        } else if (game.players.length === 0) {
+            // No players left, cleanup the game
+            cleanupGame(playerData.gameCode);
+            return null;
+        }
+    }
+    
+    players.delete(socketId);
+    return { game, playerData };
+}
+
+function cleanupInactiveGames() {
+    const now = Date.now();
+    const INACTIVE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    
+    for (const [gameCode, game] of games.entries()) {
+        // Check if game has been inactive for too long
+        const lastActivity = game.lastActivity || game.createdAt || now;
+        if (now - lastActivity > INACTIVE_TIMEOUT) {
+            cleanupGame(gameCode);
+        }
+    }
+}
+
+// Run cleanup every 5 minutes
+setInterval(cleanupInactiveGames, 5 * 60 * 1000);
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
 
@@ -870,6 +960,7 @@ io.on('connection', (socket) => {
         const game = games.get(playerData.gameCode);
         if (!game) return;
 
+        game.updateActivity(); // Track activity
         if (game.placeBid(socket.id, data.bidAmount)) {
             io.to(playerData.gameCode).emit('game_state', game.getGameState());
             
@@ -889,6 +980,7 @@ io.on('connection', (socket) => {
         const game = games.get(playerData.gameCode);
         if (!game) return;
 
+        game.updateActivity(); // Track activity
         if (game.selectTrump(socket.id, data.trumpSuit)) {
             broadcastGameState(game, playerData.gameCode);
             
@@ -904,6 +996,7 @@ io.on('connection', (socket) => {
         const game = games.get(playerData.gameCode);
         if (!game) return;
 
+        game.updateActivity(); // Track activity
         if (game.playCard(socket.id, data.card)) {
             const trickJustCompleted = game.currentTrick.length === 4;
             
@@ -980,8 +1073,14 @@ io.on('connection', (socket) => {
         if (!game) return;
 
         if (game.stopGame(socket.id)) {
-            // Game stopped, return players to start screen after 3 seconds
+            // Notify all players that game is ending
+            io.to(playerData.gameCode).emit('game_stopped', {
+                message: 'Game stopped by host'
+            });
+            
+            // Clean up the game after a short delay
             setTimeout(() => {
+                cleanupGame(playerData.gameCode);
                 io.to(playerData.gameCode).emit('gameEnded');
             }, 3000);
         } else {
@@ -990,20 +1089,22 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        
-        const playerData = players.get(socket.id);
-        if (playerData) {
-            const game = games.get(playerData.gameCode);
+        const result = removePlayerFromGame(socket.id);
+        if (result) {
+            const { game, playerData } = result;
             if (game) {
-                // Clean up timer
-                game.clearTimer();
-                
-                // Notify other players
-                socket.to(playerData.gameCode).emit('player_disconnected', {
-                    playerId: socket.id
+                // Notify remaining players
+                io.to(playerData.gameCode).emit('player_disconnected', {
+                    playerId: socket.id,
+                    playerName: playerData.name || 'Unknown Player',
+                    playersRemaining: game.players.length
                 });
+                
+                // Update game state for remaining players
+                if (game.players.length > 0) {
+                    io.to(playerData.gameCode).emit('game_state', game.getGameState());
+                }
             }
-            players.delete(socket.id);
         }
     });
 
