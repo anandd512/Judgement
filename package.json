@@ -1,0 +1,21 @@
+{
+  "name": "judgement-card-game",
+  "version": "1.0.0",
+  "description": "A 4-player trick-based card game called Judgement",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["card-game", "nodejs", "socket.io", "multiplayer"],
+  "author": "Your Name",
+  "license": "MIT"
+}
