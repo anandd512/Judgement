@@ -5,6 +5,10 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 console.log('Starting Judgement Card Game Server...');
+console.log('Current working directory:', process.cwd());
+console.log('__dirname:', __dirname);
+console.log('Static files path:', path.join(__dirname, '../public'));
+console.log('Assets path:', path.join(__dirname, '../Assets'));
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +24,11 @@ const io = socketIo(server, {
 // Serve static files
 app.use(express.static('public'));
 app.use('/assets', express.static('Assets'));
+
+// Explicit route for root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 // Game state storage
 const games = new Map();
