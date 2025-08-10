@@ -1,168 +1,118 @@
-# Judgement Card Game
+# Judgement Card Game 🎮
 
-A 4-player trick-based card game built with Node.js, Express, Socket.IO, HTML, CSS, and JavaScript.
+A real-time multiplayer 4-player trick-based card game built with Node.js, Express, and Socket.IO.
 
-## Game Overview
+## 🌐 Live Demo
 
-Judgement is a strategic card game where 4 players form 2 teams:
-- **Team 1**: Player 1 & Player 3
-- **Team 2**: Player 2 & Player 4
+**Play Online**: [https://judgement-card-game-webapp-dthfebcvhbbpb0bc.westus3-01.azurewebsites.net/](https://judgement-card-game-webapp-dthfebcvhbbpb0bc.westus3-01.azurewebsites.net/)
 
-The game consists of multiple rounds (configurable 5-11 rounds) where teams bid on tricks and try to achieve their bid to win rounds.
+## 🎯 Features
 
-## Features
+- **Real-time multiplayer**: 4 players with live updates
+- **Host controls**: Pause, stop, and manage games
+- **Chat system**: In-game communication
+- **Mobile responsive**: Works on all devices  
+- **Game statistics**: Track scores and performance
+- **Timer system**: Automated round management
 
-- Real-time multiplayer gameplay using Socket.IO
-- **Mobile-responsive design** optimized for phones and tablets
-- **Touch-friendly interface** with haptic feedback
-- Card game logic with bidding, trump selection, and trick-taking
-- Team-based scoring system
-- Game rooms with unique codes
-- Visual card representations using SVG assets
-- **Landscape orientation support** for better mobile experience
-- **Connection status indicator** with auto-reconnection
-- **Optimized card interactions** for touchscreen devices
+## 🚀 Quick Start
 
-## Mobile Experience
+### Local Development
 
-The game is fully optimized for mobile devices:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/anandd512/Judgement.git
+   cd Judgement
+   ```
 
-### Features:
-- **Responsive Layout**: Adapts to all screen sizes
-- **Touch Controls**: Large, touch-friendly buttons and cards
-- **Haptic Feedback**: Vibration feedback on supported devices
-- **Optimized Card Size**: Cards automatically resize for screen size
-- **Landscape Mode**: Better experience in landscape orientation
-- **Pull-to-Refresh Prevention**: Smooth gameplay without accidental refreshes
-- **iOS Safari Compatible**: Works perfectly on iPhone/iPad
-- **Android Compatible**: Optimized for all Android browsers
-
-### Best Mobile Experience:
-1. Use landscape orientation for optimal card visibility
-2. Ensure stable WiFi connection for real-time gameplay
-3. Use latest Chrome, Safari, or Edge browser
-4. Enable haptic feedback in device settings
-
-## Installation
-
-1. Make sure you have Node.js installed on your system
-2. Navigate to the project directory
-3. Install dependencies:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-## Running the Game
-
-1. Start the server:
+3. **Start the server**
    ```bash
    npm start
    ```
-   Or for development with auto-restart:
-   ```bash
-   npm run dev
+
+4. **Open your browser**
+   ```
+   http://localhost:3000
    ```
 
-2. Open your browser and navigate to `http://localhost:3000`
+## 🎲 How to Play
 
-3. One player should "Host Game" and share the game code with 3 other players
+### Game Setup
+1. One player creates a game and shares the game code
+2. Other players join using the game code
+3. Host starts the game when all 4 players are ready
 
-4. Other players should "Join Game" using the shared game code
+### Gameplay
+1. **Bidding Phase**: Each player bids on how many tricks they'll win
+2. **Playing Phase**: Play cards in turns, highest card wins the trick
+3. **Scoring**: Points awarded based on bid accuracy
+4. **Multiple Rounds**: Game continues through different hand sizes
 
-## Game Rules
+### Winning
+- Score points by meeting your exact bid
+- Bonus points for perfect bids
+- Player with highest total score wins
 
-### Setup
-- 4 players required
-- 13 cards dealt to each player from a standard 52-card deck
-- Players form teams: (1,3) vs (2,4)
+## 🛠️ Technology Stack
 
-### Bidding Phase
-- Each player bids how many tricks their team will win (6-13)
-- Bidding order rotates each round
-- Team with higher combined bid wins the bid
-- Within winning team, player with higher bid (or last to bid if tied) selects trump
+- **Backend**: Node.js, Express.js
+- **Real-time Communication**: Socket.IO
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **Deployment**: Azure App Service (Linux)
+- **CI/CD**: GitHub Actions
 
-### Playing Phase
-- Bid winner starts by playing a card
-- Players must follow suit if possible
-- Trump cards beat non-trump cards
-- Highest card in leading suit wins if no trump played
-- Trick winner leads next trick
-
-### Scoring
-- Team that won the bid must achieve at least their bid in tricks
-- If they succeed, they win the round
-- If they fail, the other team wins the round
-- Team with most round wins after all rounds wins the game
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 Judgement/
 ├── server/
-│   └── app.js              # Main server file with game logic
+│   └── app.js              # Main server file
 ├── public/
-│   ├── index.html          # Main game interface
-│   ├── css/
-│   │   └── style.css       # Game styling
-│   └── js/
-│       └── app.js          # Client-side game logic
-├── Assets/                 # Card SVG images
-├── package.json            # Project dependencies
-└── README.md              # This file
+│   ├── index.html          # Game interface
+│   ├── css/style.css       # Styling
+│   └── js/app.js          # Client-side logic
+├── Assets/                 # Card images (SVG)
+├── .github/workflows/      # GitHub Actions
+└── package.json           # Dependencies
 ```
 
-## Technologies Used
+## 🚀 Deployment
 
-- **Backend**: Node.js, Express.js, Socket.IO
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Real-time Communication**: Socket.IO
-- **Card Assets**: SVG images
+The game is automatically deployed to Azure App Service using GitHub Actions. Any push to the `main` branch triggers a new deployment.
 
-## Game Flow
+### Manual Deployment
+If you want to deploy your own instance:
 
-1. **Lobby**: Players join using game code
-2. **Bidding**: Each player bids on tricks their team will win
-3. **Trump Selection**: Winning bidder selects trump suit
-4. **Card Play**: Players play cards in tricks
-5. **Scoring**: Round winner determined by bid achievement
-6. **Next Round**: Process repeats until all rounds complete
-7. **Game End**: Team with most round wins is declared winner
+1. Create an Azure App Service (Linux, Node.js 20)
+2. Fork this repository
+3. Add your publish profile as a GitHub secret: `AZUREAPPSERVICE_PUBLISHPROFILE_JUDGEMENTCARDGAME`
+4. Update the workflow file with your app name
+5. Push to trigger deployment
 
-## Testing on Mobile
+## 🤝 Contributing
 
-### Local Network Testing:
-1. Find your computer's IP address:
-   ```bash
-   ipconfig  # Windows
-   ifconfig  # Mac/Linux
-   ```
-2. Start the server: `npm start`
-3. On your mobile device, navigate to: `http://YOUR_IP:3000`
-4. Test multiplayer by opening multiple mobile browsers
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally
+5. Submit a pull request
 
-### Mobile Browser Developer Tools:
-1. Chrome: Menu → More Tools → Developer Tools → Device Toolbar
-2. Firefox: Tools → Web Developer → Responsive Design Mode
-3. Safari: Develop → Enter Responsive Design Mode
+## 📝 License
 
-### Testing Checklist:
-- [ ] Game loads quickly on mobile
-- [ ] Touch controls are responsive
-- [ ] Cards are easily selectable
-- [ ] Text is readable without zooming
-- [ ] Game works in both portrait and landscape
-- [ ] Connection status indicator works
-- [ ] Multiple players can join from mobile devices
+MIT License - see LICENSE file for details
 
-## Contributing
+## 🎮 Game Rules
 
-Feel free to contribute to this project by:
-- Reporting bugs
-- Suggesting new features
-- Submitting pull requests
-- Improving documentation
+**Judgement** is a trick-taking card game where players must bid exactly how many tricks they think they can win. The challenge is in accurate bidding and strategic play.
 
-## License
+### Scoring
+- **Exact bid**: 10 + (2 × bid) points
+- **Wrong bid**: 0 points
+- **Bonus**: Extra points for difficult bids
 
-This project is licensed under the MIT License.
+Enjoy playing Judgement! 🎉

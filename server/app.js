@@ -2,28 +2,9 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
-const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 console.log('Starting Judgement Card Game Server...');
-console.log('Current working directory:', process.cwd());
-console.log('__dirname:', __dirname);
-console.log('Static files path:', path.join(__dirname, '../public'));
-console.log('Assets path:', path.join(__dirname, '../Assets'));
-
-// Check if key files exist
-const publicPath = path.join(__dirname, '../public');
-const indexPath = path.join(publicPath, 'index.html');
-const assetsPath = path.join(__dirname, '../Assets');
-
-console.log('Checking file existence:');
-console.log('Public directory exists:', fs.existsSync(publicPath));
-console.log('Index.html exists:', fs.existsSync(indexPath));
-console.log('Assets directory exists:', fs.existsSync(assetsPath));
-
-if (fs.existsSync(publicPath)) {
-    console.log('Contents of public directory:', fs.readdirSync(publicPath));
-}
 
 const app = express();
 const server = http.createServer(app);
@@ -39,51 +20,6 @@ const io = socketIo(server, {
 // Serve static files
 app.use(express.static(path.join(__dirname, '../public')));
 app.use('/assets', express.static(path.join(__dirname, '../Assets')));
-
-// Explicit route for root path
-app.get('/', (req, res) => {
-    const indexPath = path.join(__dirname, '../public/index.html');
-    console.log('Serving index.html from:', indexPath);
-    res.sendFile(indexPath);
-});
-
-// Debug route to check file system
-app.get('/debug', (req, res) => {
-    const debugInfo = {
-        cwd: process.cwd(),
-        dirname: __dirname,
-        publicPath: path.join(__dirname, '../public'),
-        indexPath: path.join(__dirname, '../public/index.html'),
-        assetsPath: path.join(__dirname, '../Assets'),
-        files: {}
-    };
-    
-    try {
-        // Check root directory
-        debugInfo.files.root = fs.readdirSync(process.cwd());
-        
-        // Check if directories exist and list contents
-        const publicPath = path.join(__dirname, '../public');
-        debugInfo.files.publicExists = fs.existsSync(publicPath);
-        if (debugInfo.files.publicExists) {
-            debugInfo.files.publicContents = fs.readdirSync(publicPath);
-        }
-        
-        const assetsPath = path.join(__dirname, '../Assets');
-        debugInfo.files.assetsExists = fs.existsSync(assetsPath);
-        if (debugInfo.files.assetsExists) {
-            debugInfo.files.assetsContents = fs.readdirSync(assetsPath);
-        }
-        
-        // Check server directory
-        debugInfo.files.serverContents = fs.readdirSync(__dirname);
-        
-    } catch (error) {
-        debugInfo.error = error.message;
-    }
-    
-    res.json(debugInfo);
-});
 
 // Game state storage
 const games = new Map();
